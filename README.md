@@ -65,7 +65,7 @@ python3 -m http.server 8000
 <h2>Usage</h2>
 <ul>
     <li><strong>Build Map</strong> → Start mapping your environment.</li>
-    <li><strong>Localization</strong> → Localize the robot on the map.</li>
+    <li><strong>Localization</strong> → load a pre map than Localize the robot on the map.</li>
     <li><strong>Navigate</strong> → Set goals for the robot and observe movement.</li>
 </ul>
 <p>All ROS2 commands run automatically in the backend.</p>
