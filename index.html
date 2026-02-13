@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>web_rviz — Professional ..............(updated)</title>
+  <style>
+    /* ===== Reset & base ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html,body { height: 100%; }
+    body {
+      font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071025 0%, #0b1426 100%);
+      color: #e6eef8;
+      padding: 18px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1320px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      display:flex; justify-content:space-between; align-items:center; gap:16px;
+      background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03);
+      padding:14px 18px; border-radius:12px; margin-bottom:14px; backdrop-filter: blur(8px);
+    }
+    .brand { display:flex; gap:12px; align-items:center; }
+    .brand-logo { width:46px; height:46px; border-radius:10px; background:linear-gradient(135deg,#1b8fd8,#6b4cff); display:flex; align-items:center; justify-content:center; font-weight:700; }
+    .brand-title h1 { font-size:18px; font-weight:700; color:#eaf8ff; }
+    .brand-title small { color: rgba(230,238,248,0.6); font-size:12px; }
+
+    .stats { display:flex; gap:10px; align-items:center; }
+    .pill { background: rgba(255,255,255,0.018); border:1px solid rgba(255,255,255,0.02); padding:10px 12px; border-radius:10px; min-width:120px; }
+    .pill .label { font-size:11px; color:rgba(200,220,235,0.7); }
+    .pill .value { font-weight:700; color:#dff6ff; margin-top:6px; }
+
+    /* Navigation */
+    .nav { display:flex; gap:12px; margin:12px 0; }
+    .tab { padding:8px 12px; border-radius:8px; background:transparent; color:#cfefff; border:1px solid rgba(255,255,255,0.02); cursor:pointer; font-weight:600; }
+    .tab.active { background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); color:#ffffff; }
+
+    /* layout */
+    .main { display:grid; grid-template-columns: 1fr 360px; gap:18px; align-items:start; }
+
+    .card { background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); padding:14px; border-radius:12px; }
+
+    /* map */
+    .map-card { padding:14px; }
+    .map-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .map-wrapper { position:relative; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.02); box-shadow: 0 8px 30px rgba(2,8,20,0.7); background: #03060a; }
+  
+
+  
+  /* 
+.map-wrapper {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 15px rgba(2, 8, 20, 0.6);
+  background: #03060a;
+  width: 60%;
+  aspect-ratio: 1 / 1;
+  margin: 20px auto;
+  max-width: 600px;
+}
+*/
+
+}
+
+#mapCanvas {
+  width: 90vmin;            /* Keep proportional size based on screen */
+  height: 90vmin;           /* Same as width → square shape */
+  display: block;
+  background: #05060a;
+  margin: 0 auto;           /* Center horizontally */
+  border-radius: 12px;      /* Optional, for soft corners */
+  transform: rotate(-90deg);
+  transform-origin: center center;
+}
+
+    /* controls */
+    .right { display:flex; flex-direction:column; gap:14px; }
+    
+    /* FIXED JOYSTICK STYLING */
+    .joystick-container {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    
+    #joystickWrapper { 
+      position: relative;
+      width: 200px; 
+      height: 200px; 
+      border-radius: 50%;
+      background: rgba(255,255,255,0.01);
+      border: 2px solid rgba(107,76,255,0.2);
+    }
+    
+    .joystick-label { 
+      text-align:center; 
+      margin-bottom:8px; 
+      font-size: 13px;
+      color: rgba(230,238,248,0.7);
+    }
+    
+    .vel-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .vel { background: rgba(255,255,255,0.01); padding:8px; border-radius:8px; text-align:center; }
+
+    .task-list { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+    .task-item { background: rgba(255,255,255,0.01); border-left:4px solid #6b4cff; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; }
+
+    /* buttons */
+    .btn { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px; cursor:pointer; color:#e6eef8; font-weight:600; }
+    .btn.ghost { background:transparent; border:1px dashed rgba(255,255,255,0.03); }
+
+    .muted { color: rgba(230,238,248,0.65); font-size:13px; }
+
+    @media (max-width:1100px) { .main { grid-template-columns: 1fr; } #mapCanvas { height:420px; transform:none; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">RV</div>
+        <div class="brand-title">
+          <h1>web_rviz__df_____</h1>
+          <small>Advanced Robot Tracking System</small>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="pill"><div class="label">Position</div><div class="value" id="posDisplay">0.00, 0.00</div></div>
+        <div class="pill"><div class="label">Battery</div><div class="value" id="batteryDisplay">100%</div></div>
+        <div class="pill"><div class="label">Speed</div><div class="value" id="speedDisplay">0.00 m/s</div></div>
+        <div class="pill" id="connPill"><div class="label">Connection</div><div class="value" id="connText">Disconnected</div></div>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <button id="tabMap" class="tab active">Map & Tasks</button>
+      <button id="tabNotif" class="tab">Notifications</button>
+    </nav>
+
+    <main class="main">
+      <section class="map-card card">
+        <div class="map-header">
+          <div>
+            <h3 style="margin-bottom:4px">SLAM Mapping</h3>
+            <div class="muted">Live map from /scan · odom from /odom</div>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="saveBtn" class="btn">Save</button>
+            <button id="loadBtn" class="btn">Load</button>
+            <button id="clearBtn" class="btn">Clear</button>
+            <input type="file" id="fileInput" accept="application/json" style="display:none" />
+          </div>
+        </div>
+
+        <div class="map-wrapper">
+          <canvas id="mapCanvas" width="900" height="640"></canvas>
+        </div>
+
+        <div style="margin-top:10px; display:flex; gap:16px; align-items:center;">
+          <div class="muted" id="mapInfo">Map points: 0</div>
+          <div class="muted" id="obstacleInfo">Obstacles: Clear</div>
+        </div>
+      </section>
+
+      <aside class="right">
+        <div class="card">
+          <h4>Joystick Control</h4>
+          <div class="joystick-label">Use joystick to control robot movement</div>
+          
+          <div class="joystick-container">
+            <div id="joystickWrapper"></div>
+          </div>
+
+          <div class="vel-grid" style="margin-top:8px;">
+            <div class="vel"><div class="muted">Linear</div><div id="linearVel" style="font-weight:700">0.00</div></div>
+            <div class="vel"><div class="muted">Angular</div><div id="angularVel" style="font-weight:700">0.00</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>System</h4>
+          <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+            <div style="width:12px; height:12px; border-radius:50%; background:#ff4444" id="connDot"></div>
+            <div id="connBoxText">Disconnected</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+            <div style="background:transparent; padding:8px; border-radius:8px;">
+              <div class="muted">Obstacles</div>
+              <div id="obstacleStatus" style="font-weight:700; margin-top:6px;">Clear</div>
+            </div>
+            <div style="background:transparent; padding:8px; border-radius:8px;">
+              <div class="muted">Map Points</div>
+              <div id="mapPointsCount" style="font-weight:700; margin-top:6px;">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Task Manager</h4>
+          <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+            <input id="poseX" type="text" placeholder="X" style="width:70px; padding:8px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.03); color:inherit;" />
+            <input id="poseY" type="text" placeholder="Y" style="width:70px; padding:8px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.03); color:inherit;" />
+            <button id="sendGoalBtn" class="btn">Send</button>
+            <button id="addTaskBtn" class="btn ghost">+ Add</button>
+          </div>
+
+          <div class="task-list" id="taskList">
+            <div class="task-item">
+              <div>
+                <div style="font-weight:700">Delivery to Room 301</div>
+                <div class="muted">ETA: 2m</div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn" onclick="pauseTask(this)">Pause</button>
+                <button class="btn" onclick="deleteTask(this)">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </main>
+
+    <section id="notifPage" style="display:none;">
+      <div class="card" style="margin-top:12px;">
+        <h4>Notifications</h4>
+        <div style="margin-top:10px;">
+          <div class="notif warn">Battery low: 30% (simulated)</div>
+          <div class="notif success">Task completed: Delivery to Room 301</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+
+  <script>
+    // =====================
+    // web_rviz — full client
+    // FIXED: Joystick now properly positioned in control section
+    // =====================
+
+    // ---- DOM refs ----
+    const connDot = document.getElementById('connDot');
+    const connText = document.getElementById('connText');
+    const connBoxText = document.getElementById('connBoxText');
+    const posDisplay = document.getElementById('posDisplay');
+    const batteryDisplay = document.getElementById('batteryDisplay');
+    const speedDisplay = document.getElementById('speedDisplay');
+    const mapPointsCountEl = document.getElementById('mapPointsCount');
+    const obstacleStatusEl = document.getElementById('obstacleStatus');
+    const mapInfo = document.getElementById('mapInfo');
+    const obstacleInfo = document.getElementById('obstacleInfo');
+
+    const mapCanvas = document.getElementById('mapCanvas');
+    const ctx = mapCanvas.getContext('2d');
+
+    // ensure canvas internal resolution matches CSS size
+    function resizeCanvas() {
+      const rect = mapCanvas.getBoundingClientRect();
+      mapCanvas.width = rect.width;
+      mapCanvas.height = rect.height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // ---- state ----
+    const scale = 45; // pixels per meter
+    let cx = mapCanvas.width / 2;
+    let cy = mapCanvas.height / 2;
+
+    const mapPoints = new Map(); // keys: "x100,y100" string
+    let robotPose = { x:0, y:0, yaw:0 };
+    let obstacleDetected = false;
+
+    // ---- ROS setup ----
+    let ros = null;
+    let cmdVelTopic = null;
+    let odomSub = null;
+    let scanSub = null;
+    const ROS_URL = 'ws://localhost:9090';
+
+    function setConnectedUI(){ 
+      connDot.style.background = '#00cc88'; 
+      connBoxText.textContent = 'Connected'; 
+      document.getElementById('connPill').querySelector('.value').textContent = 'Connected'; 
+    }
+    
+    function setDisconnectedUI(text){ 
+      connDot.style.background = '#ff4444'; 
+      connBoxText.textContent = text || 'Disconnected'; 
+      document.getElementById('connPill').querySelector('.value').textContent = text || 'Disconnected'; 
+    }
+
+    function connectROS(url = ROS_URL) {
+      if (typeof ROSLIB === 'undefined') { 
+        console.warn('roslib.js missing'); 
+        setDisconnectedUI('roslib.js missing'); 
+        return; 
+      }
+      if (ros) try { ros.close(); } catch(e) {}
+      ros = new ROSLIB.Ros();
+      try { ros.connect(url); }
+      catch(err) { 
+        console.error('ROS connect failed', err); 
+        setDisconnectedUI('Connection error'); 
+        return; 
+      }
+
+      ros.on('connection', () => { setConnectedUI(); setupTopics(); });
+      ros.on('error', (e) => { console.error('ROS error', e); setDisconnectedUI('Error'); });
+      ros.on('close', () => { setDisconnectedUI('Disconnected'); });
+    }
+    connectROS();
+
+    function setupTopics(){
+      if (!ros) return;
+      try {
+        cmdVelTopic = new ROSLIB.Topic({ ros, name: '/cmd_vel', messageType: 'geometry_msgs/msg/Twist' });
+      } catch(e){ console.warn('cmd topic setup failed', e); }
+
+      if (odomSub) try { odomSub.unsubscribe(); } catch(e) {}
+      odomSub = new ROSLIB.Topic({ ros, name: '/odom', messageType: 'nav_msgs/msg/Odometry' });
+      odomSub.subscribe(onOdomMessage);
+
+      if (scanSub) try { scanSub.unsubscribe(); } catch(e) {}
+      scanSub = new ROSLIB.Topic({ ros, name: '/scan', messageType: 'sensor_msgs/msg/LaserScan' });
+      scanSub.subscribe(onScanMessage);
+    }
+
+    function onOdomMessage(msg){
+      const p = msg.pose.pose.position;
+      const q = msg.pose.pose.orientation;
+      const siny = 2 * (q.w * q.z + q.x * q.y);
+      const cosy = 1 - 2 * (q.y * q.y + q.z * q.z);
+      const yaw = Math.atan2(siny, cosy);
+      robotPose.x = p.x; robotPose.y = p.y; robotPose.yaw = yaw;
+      posDisplay.textContent = `${robotPose.x.toFixed(2)}, ${robotPose.y.toFixed(2)}`;
+    }
+
+    function onScanMessage(msg){
+      obstacleDetected = false;
+      for (let i=0; i<msg.ranges.length; i+=2) {
+        const r = msg.ranges[i];
+        if (r > msg.range_min && r < msg.range_max) {
+          const angle = msg.angle_min + i * msg.angle_increment;
+          const wx = robotPose.x + r * Math.cos(angle + robotPose.yaw);
+          const wy = robotPose.y + r * Math.sin(angle + robotPose.yaw);
+          const key = `${Math.round(wx*100)},${Math.round(wy*100)}`;
+          if (!mapPoints.has(key)) mapPoints.set(key, true);
+          if (r < 0.25 && Math.abs(angle) < 0.5) obstacleDetected = true;
+        }
+      }
+      updateMapUI();
+    }
+
+    function updateMapUI(){
+      document.getElementById('mapPointsCount').textContent = mapPoints.size;
+      obstacleStatusEl.textContent = obstacleDetected ? 'Detected' : 'Clear';
+      mapInfo.textContent = `Map points: ${mapPoints.size}`;
+      obstacleInfo.textContent = `Obstacles: ${obstacleDetected ? 'Detected' : 'Clear'}`;
+    }
+
+    // ---- drawing ----
+    function drawLoop(){
+      cx = mapCanvas.width / 2; cy = mapCanvas.height / 2;
+
+      ctx.save();
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.clearRect(0,0,mapCanvas.width,mapCanvas.height);
+
+      ctx.translate(cx, cy);
+      const gridSpacing = 50;
+      ctx.strokeStyle = 'rgba(255,255,255,0.02)'; ctx.lineWidth = 1;
+      for (let gx = -mapCanvas.width; gx <= mapCanvas.width; gx += gridSpacing){ 
+        ctx.beginPath(); ctx.moveTo(gx, -mapCanvas.height); ctx.lineTo(gx, mapCanvas.height); ctx.stroke(); 
+      }
+      for (let gy = -mapCanvas.height; gy <= mapCanvas.height; gy += gridSpacing){ 
+        ctx.beginPath(); ctx.moveTo(-mapCanvas.width, gy); ctx.lineTo(mapCanvas.width, gy); ctx.stroke(); 
+      }
+
+      ctx.fillStyle = '#ff7b7b'; ctx.shadowBlur = 2; ctx.shadowColor = '#ff7b7b';
+      for (const k of mapPoints.keys()){
+        const [wx,wy] = k.split(',').map(v => parseInt(v)/100);
+        const x = wx * scale;
+        const y = -wy * scale;
+        ctx.fillRect(x-1, y-1, 2, 2);
+      }
+      ctx.shadowBlur = 0;
+
+      const rx = robotPose.x * scale;
+      const ry = -robotPose.y * scale;
+      ctx.save();
+      ctx.translate(rx, ry);
+      ctx.rotate(-robotPose.yaw - Math.PI/2);
+      const g = ctx.createLinearGradient(-12,-10,16,10); 
+      g.addColorStop(0,'#7dd3fc'); 
+      g.addColorStop(1,'#6b4cff');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(16, 0);
+      ctx.lineTo(-12, -10);
+      ctx.lineTo(-12, 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+      requestAnimationFrame(drawLoop);
+    }
+    drawLoop();
+
+    // ---- FIXED JOYSTICK INITIALIZATION ----
+    if (typeof nipplejs !== 'undefined'){
+      const joystick = nipplejs.create({ 
+        zone: document.getElementById('joystickWrapper'), 
+        mode: 'static', 
+        position: { left: '50%', top: '50%' }, 
+        size: 180, 
+        color: '#6b4cff',
+        restOpacity: 0.8
+      });
+      
+      let lastCmdTime = 0; 
+      const linearScale = 0.25; 
+      const angularScale = 1.0;
+
+      joystick.on('move', (evt, data) => {
+        if (!data || !data.angle) return;
+        const now = Date.now(); 
+        if (now - lastCmdTime < 80) return; 
+        lastCmdTime = now;
+        
+        const forward = Math.cos(data.angle.radian);
+        const turn = Math.sin(data.angle.radian);
+        let linX = linearScale * forward;
+        let angZ = -angularScale * turn;
+        
+        if (obstacleDetected && forward > 0) { 
+          linX *= 0.12; 
+          angZ = 0.45; 
+        }
+        
+        document.getElementById('linearVel').textContent = linX.toFixed(2);
+        document.getElementById('angularVel').textContent = angZ.toFixed(2);
+        document.getElementById('speedDisplay').textContent = `${Math.abs(linX).toFixed(2)} m/s`;
+        
+        if (cmdVelTopic) publishCmd(linX, angZ);
+      });
+
+      joystick.on('end', () => {
+        document.getElementById('linearVel').textContent='0.00'; 
+        document.getElementById('angularVel').textContent='0.00'; 
+        document.getElementById('speedDisplay').textContent='0.00 m/s';
+        if (cmdVelTopic) publishCmd(0,0);
+      });
+    } else {
+      console.warn('nipplejs not found. Joystick disabled.');
+      document.getElementById('joystickWrapper').innerHTML = '<div style="padding:40px; text-align:center; color:rgba(255,255,255,0.4);">Joystick library not loaded</div>';
+    }
+
+    function publishCmd(lin, ang){
+      if (!cmdVelTopic) return;
+      const msg = new ROSLIB.Message({ 
+        linear: { x: lin, y: 0, z: 0 }, 
+        angular: { x:0, y:0, z: ang } 
+      });
+      try { cmdVelTopic.publish(msg); } 
+      catch(e) { console.warn('publish failed', e); }
+    }
+
+    // ---- save / load / clear ----
+    document.getElementById('clearBtn').addEventListener('click', () => { 
+      if (confirm('Clear the current map?')){ 
+        mapPoints.clear(); 
+        updateMapUI(); 
+        alert('Map cleared'); 
+      } 
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const data = { points: Array.from(mapPoints.keys()), robotPose };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); 
+      a.href = url; 
+      a.download = `map_${new Date().toISOString().replace(/[:.]/g,'-')}.json`; 
+      document.body.appendChild(a); 
+      a.click(); 
+      a.remove(); 
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('loadBtn').addEventListener('click', () => { 
+      document.getElementById('fileInput').click(); 
+    });
+    
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const f = e.target.files[0]; 
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const payload = JSON.parse(ev.target.result);
+          if (payload.points && Array.isArray(payload.points)){
+            mapPoints.clear(); 
+            payload.points.forEach(k => mapPoints.set(k, true));
+          }
+          if (payload.robotPose) robotPose = payload.robotPose;
+          updateMapUI();
+          alert('Map loaded');
+        } catch(err){ 
+          alert('Failed to load map: ' + err.message); 
+        }
+      };
+      reader.readAsText(f);
+      e.target.value = '';
+    });
+
+    // ---- tasks manager ----
+    document.getElementById('addTaskBtn').addEventListener('click', addTask);
+    document.getElementById('sendGoalBtn').addEventListener('click', sendGoal);
+
+    function addTask(){
+      const taskList = document.getElementById('taskList');
+      const card = document.createElement('div'); 
+      card.className='task-item';
+      card.innerHTML = `<div><div style="font-weight:700">New Task</div><div class="muted">ETA: -</div></div><div style="display:flex;gap:6px;"><button class="btn" onclick="pauseTask(this)">Pause</button><button class="btn" onclick="deleteTask(this)">Delete</button></div>`;
+      taskList.prepend(card);
+    }
+    
+    function pauseTask(btn){ 
+      btn.textContent = 'Resume'; 
+      btn.onclick = function(){ resumeTask(this); }; 
+      alert('Task paused'); 
+    }
+    
+    function resumeTask(btn){ 
+      btn.textContent = 'Pause'; 
+      btn.onclick = function(){ pauseTask(this); }; 
+      alert('Task resumed'); 
+    }
+    
+    function deleteTask(btn){ 
+      if (confirm('Delete this task?')) btn.closest('.task-item').remove(); 
+    }
+    
+    function sendGoal(){ 
+      const x = parseFloat(document.getElementById('poseX').value || '0'); 
+      const y = parseFloat(document.getElementById('poseY').value || '0'); 
+      alert(`Send goal: ${x}, ${y} (placeholder)`); 
+    }
+
+    // ---- battery simulation ----
+    let battery = 100; 
+    setInterval(() => { 
+      battery = Math.max(0, battery - (Math.random()>0.8?1:0)); 
+      batteryDisplay.textContent = `${Math.round(battery)}%`; 
+    }, 10000);
+
+    // ---- ensure cmd topic availability ----
+    setInterval(() => { 
+      if (ros && !cmdVelTopic){ 
+        try{ 
+          cmdVelTopic = new ROSLIB.Topic({ 
+            ros, 
+            name: '/cmd_vel', 
+            messageType: 'geometry_msgs/msg/Twist' 
+          }); 
+        }catch(e){} 
+      } 
+    }, 2000);
+
+    // ---- tabs ----
+    document.getElementById('tabMap').addEventListener('click', () => { 
+      document.getElementById('tabMap').classList.add('active'); 
+      document.getElementById('tabNotif').classList.remove('active'); 
+      document.querySelector('.main').style.display='grid'; 
+      document.getElementById('notifPage').style.display='none'; 
+    });
+    
+    document.getElementById('tabNotif').addEventListener('click', () => { 
+      document.getElementById('tabNotif').classList.add('active'); 
+      document.getElementById('tabMap').classList.remove('active'); 
+      document.querySelector('.main').style.display='none'; 
+      document.getElementById('notifPage').style.display='block'; 
+    });
+
+    // ---- beforeunload cleanup ----
+    window.addEventListener('beforeunload', () => { 
+      try{ if (ros) ros.close(); }catch(e){} 
+    });
+
+  </script>
+</body>
+</html>
