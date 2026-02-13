@@ -64,25 +64,11 @@ http://localhost:8080/index.html // Open web UI
 <h3>Alternative Commands</h3>
 <pre>
 export TURTLEBOT3_MODEL=waffle_pi
-
-
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-
-
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
-
 python3 -m http.server 8000
 </pre>
 
-<h3>Working in Map Folder</h3>
-<pre>
-
-# HTTP server on port 8008
-python3 -m http.server 8008
-
-# Web UI
-http://localhost:8008/index.html
-</pre>
 </div>
 
 <div class="section">
