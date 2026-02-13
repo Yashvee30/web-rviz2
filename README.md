@@ -1,23 +1,4 @@
-# web-rviz2
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web RViz2</title>
-<style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 900px; margin: auto; background-color: #f9f9f9; color: #333; }
-    h1, h2, h3 { color: #2c3e50; }
-    pre { background: #ecf0f1; padding: 10px; overflow-x: auto; }
-    code { background: #ecf0f1; padding: 2px 4px; border-radius: 3px; }
-    a { color: #2980b9; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .section { margin-bottom: 30px; }
-    .video { max-width: 100%; margin: 10px 0; }
-</style>
-</head>
-<body>
 
 <h1>Web RViz2</h1>
 
