@@ -49,40 +49,33 @@ export TURTLEBOT3_MODEL=waffle_pi
 # Launch TurtleBot3 in Gazebo
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
-# Optional: Teleoperate robot
-ros2 run turtlebot3_teleop teleop_keyboard
+ros2 run turtlebot3_teleop teleop_keyboard // Teleoperate robot
 
-# Start ROS bridge for WebSocket
-ros2 run rosbridge_server rosbridge_websocket
 
-# Run HTTP server
-python3 -m http.server 8080
+ros2 run rosbridge_server rosbridge_websocket // ROS bridge for WebSocket
 
-# Open web UI
-http://localhost:8080/index.html
+
+python3 -m http.server 8080 //Run HTTP server
+
+
+http://localhost:8080/index.html // Open web UI
 </pre>
 
 <h3>Alternative Commands</h3>
 <pre>
 export TURTLEBOT3_MODEL=waffle_pi
 
-# Launch Gazebo world
+
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
-# Launch ROS bridge
+
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 
-# Start HTTP server on port 8000
 python3 -m http.server 8000
 </pre>
 
 <h3>Working in Map Folder</h3>
 <pre>
-cd map
-
-ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-ros2 launch turtlebot3_bringup robot.launch.py
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 
 # HTTP server on port 8008
 python3 -m http.server 8008
