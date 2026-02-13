@@ -24,7 +24,6 @@ Web RViz2 is a <strong>web-based interface for RViz2</strong>, designed to make 
 <h2>Video Demo</h2>
 <p>The demo video is included in the repository under the <code>video/</code> folder. To watch the demo:</p>
 <pre>open video/demo.mp4</pre>
-<p>(Or use your preferred video player)</p>
 </div>
 
 <div class="section">
@@ -32,9 +31,7 @@ Web RViz2 is a <strong>web-based interface for RViz2</strong>, designed to make 
 <pre>
 git clone git@github.com:Yashvee30/web-rviz2.git
 cd web-rviz2
-
 pip install -r requirements.txt
-
 source /opt/ros/humble/setup.bash
 export TURTLEBOT3_MODEL=waffle_pi
 </pre>
@@ -48,16 +45,9 @@ export TURTLEBOT3_MODEL=waffle_pi
 <pre>
 # Launch TurtleBot3 in Gazebo
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-
 ros2 run turtlebot3_teleop teleop_keyboard // Teleoperate robot
-
-
 ros2 run rosbridge_server rosbridge_websocket // ROS bridge for WebSocket
-
-
 python3 -m http.server 8080 //Run HTTP server
-
-
 http://localhost:8080/index.html // Open web UI
 </pre>
 
