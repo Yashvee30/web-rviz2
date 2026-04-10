@@ -13,7 +13,7 @@ All ROS2 processes run in the background, allowing users to control robots, buil
 ![ROS2](https://img.shields.io/badge/ROS2-Humble-blue)
 ![ROS Bridge](https://img.shields.io/badge/rosbridge-WebSocket-orange)
 ![Simulation](https://img.shields.io/badge/Gazebo-TurtleBot3-green)
-![Language](https://img.shields.io/badge/Python-JS-yellow)y)
+![Language](https://img.shields.io/badge/Python-JS-yellow)
 
 
 ## Screenshot
