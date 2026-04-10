@@ -57,9 +57,9 @@ export TURTLEBOT3_MODEL=waffle_pi
 ## Execution Instructions
 
 This project requires:
-1 TurtleBot3 running in Gazebo
-2 rosbridge_server for WebSocket communication
-3 A local HTTP server to serve the web interface
+- TurtleBot3 running in Gazebo
+- rosbridge_server for WebSocket communication
+- A local HTTP server to serve the web interface
 
 ---
 
