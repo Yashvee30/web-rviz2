@@ -54,3 +54,54 @@ source /opt/ros/humble/setup.bash
 export TURTLEBOT3_MODEL=waffle_pi
 ```
 
+## Execution Instructions
+
+This project requires:
+1 TurtleBot3 running in Gazebo
+2 rosbridge_server for WebSocket communication
+3 A local HTTP server to serve the web interface
+
+
+## Main Commands
+# Launch TurtleBot3 in Gazebo
+```bash
+ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+# Teleoperate robot
+```bash
+ros2 run turtlebot3_teleop teleop_keyboard
+```
+
+# Start ROS bridge (WebSocket)
+
+```bash
+ros2 run rosbridge_server rosbridge_websocket
+```
+
+# Run HTTP server
+
+```bash
+python3 -m http.server 8080
+```
+
+Open in browser:
+```bash
+http://localhost:8080/index.html
+```
+
+
+### Usage
+
+Build Map → Start mapping the environment
+Localization → Load a pre-built map and localize the robot
+Navigate → Set goals and observe robot movement
+
+All ROS2 commands are handled automatically in the backend.
+
+### Why Web RViz2?
+Traditional RViz2 is complex and requires manual setup
+Web RViz2 simplifies everything through a browser interface
+No need to configure TFs or run multiple commands manually
+Suitable for clients, demos, and remote monitoring
+
